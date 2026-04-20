@@ -1,4 +1,4 @@
-name: 01 - Unit Test
+name: unit-test
 on: [push]
 jobs:
   test-sureci:
