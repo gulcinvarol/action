@@ -4,12 +4,16 @@ jobs:
   test-sureci:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Python Kur
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
-      - name: Pytest Yukle
+
+      - name: Install Pytest
         run: pip install pytest
-      - name: testleri calistir
+
+      - name: Run Tests
         run: pytest
