@@ -1,13 +1,12 @@
-name: codeQL security
+name: "CodeQL"
 
 on:
   push:
-    branches: [ "main", "yeni-branch" ]
+    branches: [ "main" ]
   workflow_dispatch:
 
 jobs:
-  analyze:
-    name: Analyze
+   analyze:
     runs-on: ubuntu-latest
     permissions:
       security-events: write
@@ -22,7 +21,7 @@ jobs:
         uses: github/codeql-action/init@v3
         with:
           languages: 'python'
-          queries: security-extended
+          queries: security-and-quality
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
