@@ -15,4 +15,5 @@ jobs:
         uses: Codium-ai/pr-agent@main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GOOGLE_AI_STUDIO_KEY: ${{ secrets.GEMINI_API_KEY }}
         
