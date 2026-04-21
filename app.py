@@ -35,3 +35,8 @@ def run_admin_command(command_str):
 if __name__ == "__main__":
     sample_txs = [{'user_id': 101, 'amount': 1500}, {'user_id': 101, 'amount': 2000}]
     print(f"Toplam Risk Skoru: {calculate_transaction_risk(sample_txs)}")
+
+    def sifre_kontrol(psw):
+    # AI buna "Hardcoded secret!" diye bayılacak
+     if psw == "admin12345": 
+         return True
