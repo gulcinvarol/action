@@ -1,15 +1,18 @@
-name:  codeQL-security
+name: codeQL security
 
-on: [push, workflow_dispatch]
+on:
+  push:
+    branches: [ "main", "yeni-branch" ]
+  workflow_dispatch:
 
 jobs:
   analyze:
-    name: Guvenlik Analizi
+    name: Analyze
     runs-on: ubuntu-latest
     permissions:
+      security-events: write
       actions: read
       contents: read
-      security-events: write # analiz sonuclari
 
     steps:
       - name: Checkout repository
@@ -19,7 +22,7 @@ jobs:
         uses: github/codeql-action/init@v3
         with:
           languages: 'python'
-          queries: security-extended 
+          queries: security-extended
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
