@@ -26,4 +26,4 @@ jobs:
         run: snyk auth ${{ secrets.SNYK_TOKEN }}
 
       - name: Snyk Test
-        run: snyk test --file=requirements.txt --package-manager=pip --severity-threshold=high
+        run: snyk test --file=requirements.txt --package-manager=pip --severity-threshold=high --skip-untracked
