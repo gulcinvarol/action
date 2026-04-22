@@ -1,7 +1,5 @@
 import sqlite3
 
-# GÜVENLİK AÇIĞI: Hardcoded Secret (Gitleaks ve CodeQL için yem)
-API_SECRET_TOKEN = "FINANS-SECRET-KEY-998877-XYZA"
 
 def calculate_transaction_risk(transactions):
     """
