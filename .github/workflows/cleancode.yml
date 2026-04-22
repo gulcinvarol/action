@@ -1,0 +1,21 @@
+name: cleancode
+
+on: [push, pull_request]
+
+jobs:
+  lint:
+    name: Universal Linting
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      - name: Run Linter-Action
+        uses: github/super-linter/slim@v5
+        env:
+          VALIDATE_ALL_CODEBASE: true
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VALIDATE_PYTHON_BLACK: false
+          VALIDATE_PYTHON_FLAKE8: false
+          VALIDATE_PYTHON_BANDIT: true
+          VALIDATE_YAML: true
+          VALIDATE_MARKDOWN: true
