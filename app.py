@@ -43,3 +43,5 @@ if __name__ == "__main__":
     sample_txs = [{'user_id': 101, 'amount': 1500}, {'user_id': 101, 'amount': 2000}]
     print(f"Toplam Risk Skoru: {calculate_transaction_risk(sample_txs)}")
     print(log_user_action("Gülçin", "Login"))
+
+    AWS_SECRET_KEY = "AKIAIMNO7890ORSTUVWX"
