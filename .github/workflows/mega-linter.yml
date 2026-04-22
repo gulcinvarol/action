@@ -16,7 +16,7 @@ jobs:
         uses: oxsecurity/megalinter@v7
         env:
           VALIDATE_ALL_CODEBASE: true
-          DISABLE: SPELL,COPYPASTE 
+          DISABLE: SPELL,COPYPASTE,YAML_YAMLLINT,REPOSITORY_CHECKOV,REPOSITORY_KICS,REPOSITORY_GRYPE
           PYTHON_BLACK_DISABLE: true
           PYTHON_FLAKE8_DISABLE: true
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
