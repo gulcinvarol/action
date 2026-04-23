@@ -72,9 +72,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: snyk/actions/python@master
+      - name: Install dependencies 
+        run: pip install -r requirements.txt
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/python@master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --file=requirements.txt 
 
   trivy:
     name: "Altyapı ve Zafiyet Taraması(Trivy)"
