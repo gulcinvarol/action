@@ -23,7 +23,7 @@ jobs:
       - uses: gitleaks/gitleaks-action@v2
 
   linter:
-    name: "Code Linting (Slim)"
+    name: "Kod Standartları ve Kalite(Linting)"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -38,8 +38,8 @@ jobs:
   # 2.AŞAMA
   # ==========================================
   unit-test:
-    name: "Unit Testing"
-    needs: [gitleaks, linter] 
+    name: "Unit Test"
+    needs: [gitleaks, linter]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -47,15 +47,18 @@ jobs:
         uses: actions/setup-python@v5
         with: { python-version: '3.10' }
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest  
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
       - name: Run Tests
-        run: pytest
+        run: pytest 
 
   # ==========================================
   # 3.AŞAMA
   # ==========================================
   bandit:
-    name: "SAST (Bandit)"
+    name: "Statik Güvenlik Analizi(SAST-Bandit)"
     needs: [unit-test] 
     runs-on: ubuntu-latest
     steps:
@@ -64,7 +67,7 @@ jobs:
         run: pip install bandit && bandit -r .
 
   snyk:
-    name: "Snyk Dependency Scan"
+    name: "Bağımlılık Güvenlik Analizi(SCA - Snyk)"
     needs: [unit-test]
     runs-on: ubuntu-latest
     steps:
@@ -74,7 +77,7 @@ jobs:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
   trivy:
-    name: "Vulnerability Scan (Trivy)"
+    name: "Altyapı ve Zafiyet Taraması(Trivy)"
     needs: [unit-test]
     runs-on: ubuntu-latest
     steps:
@@ -88,7 +91,7 @@ jobs:
   # 4.AŞAMA
   # ==========================================
   codeql:
-    name: "CodeQL Deep Analysis"
+    name: "Derin Kod Güvenlik Analizi (CodeQL)"
     needs: [bandit, snyk, trivy] 
     runs-on: ubuntu-latest
     steps:
@@ -100,7 +103,7 @@ jobs:
         uses: github/codeql-action/analyze@v3
 
   sonarcloud:
-    name: "SonarCloud Analysis"
+    name: "Kod Kalite Analizi(SonarCloud)"
     needs: [bandit, snyk, trivy]
     runs-on: ubuntu-latest
     steps:
