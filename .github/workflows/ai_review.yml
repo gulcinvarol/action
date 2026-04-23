@@ -19,16 +19,9 @@ jobs:
       - name: PR Agent Action
         uses: Codium-ai/pr-agent@main
         env:
-          
-          MODEL_PROVIDER: "google"
-          MODEL: "gemini-1.5-flash"
-          GOOGLE_AI_STUDIO_KEY: ${{ secrets.GEMINI_API_KEY }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          
-          
-          PR_AGENT.CONFIG.VERBOSITY_LEVEL: 2
-          PR_AGENT.CONFIG.ENABLE_REVIEW: true
-          PR_AGENT.CONFIG.ENABLE_SUMMARY: true
-          PR_AGENT.PR_REVIEW.REQUIRE_SCORE_REVIEW: true
-          
+        MODEL_PROVIDER: "google"
+        MODEL: "gemini-1.5-flash"
+        OPENAI_API_KEY: ${{ secrets.GEMINI_API_KEY }} 
+        GOOGLE_AI_STUDIO_KEY: ${{ secrets.GEMINI_API_KEY }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
