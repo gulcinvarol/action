@@ -1,0 +1,113 @@
+name: "Hibrit Pipeline"
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+  security-events: write 
+
+jobs:
+  # ==========================================
+  # 1.AŞAMA
+  # ==========================================
+  gitleaks:
+    name: "Secret Detection"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: gitleaks/gitleaks-action@v2
+
+  linter:
+    name: "Code Linting (Slim)"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Super-Linter Slim
+        uses: github/super-linter/slim@v5
+        env:
+          VALIDATE_ALL_CODEBASE: false
+          DEFAULT_BRANCH: main
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ==========================================
+  # 2.AŞAMA
+  # ==========================================
+  unit-test:
+    name: "Unit Testing"
+    needs: [gitleaks, linter] 
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with: { python-version: '3.10' }
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run Tests
+        run: pytest
+
+  # ==========================================
+  # 3.AŞAMA
+  # ==========================================
+  bandit:
+    name: "SAST (Bandit)"
+    needs: [unit-test] 
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Bandit Scan
+        run: pip install bandit && bandit -r .
+
+  snyk:
+    name: "Snyk Dependency Scan"
+    needs: [unit-test]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: snyk/actions/python@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+  trivy:
+    name: "Vulnerability Scan (Trivy)"
+    needs: [unit-test]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          severity: 'CRITICAL,HIGH'
+
+  # ==========================================
+  # 4.AŞAMA
+  # ==========================================
+  codeql:
+    name: "CodeQL Deep Analysis"
+    needs: [bandit, snyk, trivy] 
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with: { languages: 'python' }
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+
+  sonarcloud:
+    name: "SonarCloud Analysis"
+    needs: [bandit, snyk, trivy]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
