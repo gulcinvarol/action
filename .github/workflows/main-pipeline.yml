@@ -160,21 +160,25 @@ jobs:
             exit 0
           fi
           
+          # Create JSON payload with diff using jq
+          PAYLOAD=$(jq -n --rawfile diff /tmp/diff.txt '{
+            contents: [{
+              parts: [{
+                text: ("You are an expert code reviewer. Review this PR code changes for quality, security, and best practices:\n\n" + $diff)
+              }]
+            }]
+          }')
+          
+          # Send to Gemini API
           RESPONSE=$(curl -s -X POST \
             "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${{ secrets.GEMINI_API_KEY }}" \
             -H "Content-Type: application/json" \
-            -d "{
-              \"contents\": [{
-                \"parts\": [{
-                  \"text\": \"You are an expert code reviewer. Review this PR code changes for quality, security, and best practices:\n\n$DIFF\"
-                }]
-              }]
-            }")
+            -d "$PAYLOAD")
           
           echo "=========================================="
-          echo "AI CODE REVIEW"
+          echo "🤖 GEMINI AI CODE REVIEW"
           echo "=========================================="
-          echo "$RESPONSE" | jq -r '.candidates[0].content.parts[0].text // "No review generated"'
+          echo "$RESPONSE" | jq -r '.candidates[0].content.parts[0].text // "Review failed to generate"'
           echo "=========================================="
 
 
