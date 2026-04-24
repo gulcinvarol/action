@@ -153,6 +153,8 @@ jobs:
         run: git diff origin/main...HEAD > /tmp/diff.txt || true
 
       - name: AI Code Review
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
           DIFF=$(cat /tmp/diff.txt)
           if [ -z "$DIFF" ]; then
@@ -173,7 +175,7 @@ jobs:
           
           # Send to Gemini API
           RESPONSE=$(curl -s -X POST \
-            "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${{ secrets.GEMINI_API_KEY }}" \
+            "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}" \
             -H "Content-Type: application/json" \
             -d "$PAYLOAD")
           
