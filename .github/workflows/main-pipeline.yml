@@ -138,8 +138,8 @@ jobs:
             -Dsonar.projectKey=gulcinvarol_action
             -Dsonar.organization=gulcinvarol
 
-  ai-review:
-    name: "AI Code Review"
+  code-review:
+    name: "Code Review (DeepSource)"
     needs: [sonarcloud, codeql]
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
@@ -149,44 +149,12 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Get Code Diff
-        run: git diff origin/main...HEAD > /tmp/diff.txt || true
+      - name: DeepSource Code Review
+        uses: deepsourcelabs/deepsource-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          deepsource-dsn: ${{ secrets.DEEPSOURCE_DSN }}
 
-      - name: AI Code Review
-        env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        run: |
-          DIFF=$(cat /tmp/diff.txt)
-          if [ -z "$DIFF" ]; then
-            echo "No code changes found"
-            exit 0
-          fi
-          
-          # Create JSON payload with diff using jq
-          PAYLOAD=$(jq -n --rawfile diff /tmp/diff.txt '{
-            contents: [{
-              parts: [{
-                text: ("You are an expert code reviewer. Review this PR code changes:\n\n" + $diff)
-              }]
-            }]
-          }')
-          
-          echo "DEBUG: API Key length: ${#GEMINI_API_KEY}"
-          
-          # Send to Gemini API
-          RESPONSE=$(curl -s -X POST \
-            "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}" \
-            -H "Content-Type: application/json" \
-            -d "$PAYLOAD")
-          
-          echo "=========================================="
-          echo "DEBUG RESPONSE:"
-          echo "$RESPONSE"
-          echo "=========================================="
-          echo " GEMINI AI CODE REVIEW"
-          echo "=========================================="
-          echo "$RESPONSE" | jq -r '.candidates[0].content.parts[0].text // .error // "Review failed"'
-          echo "=========================================="
 
 
 
