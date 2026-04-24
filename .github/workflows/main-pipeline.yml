@@ -149,9 +149,34 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: "AI Code Review"
-        uses: ancoder/gemini-code-review-action@v1
-        with:
-          gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Get Code Diff
+        run: git diff origin/main...HEAD > /tmp/diff.txt || true
+
+      - name: AI Code Review
+        run: |
+          DIFF=$(cat /tmp/diff.txt)
+          if [ -z "$DIFF" ]; then
+            echo "No code changes found"
+            exit 0
+          fi
+          
+          RESPONSE=$(curl -s -X POST \
+            "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${{ secrets.GEMINI_API_KEY }}" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"contents\": [{
+                \"parts\": [{
+                  \"text\": \"You are an expert code reviewer. Review this PR code changes for quality, security, and best practices:\n\n$DIFF\"
+                }]
+              }]
+            }")
+          
+          echo "=========================================="
+          echo "AI CODE REVIEW"
+          echo "=========================================="
+          echo "$RESPONSE" | jq -r '.candidates[0].content.parts[0].text // "No review generated"'
+          echo "=========================================="
+
+
+
           
