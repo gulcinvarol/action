@@ -129,7 +129,7 @@ jobs:
             -Dsonar.projectKey=gulcinvarol_action
             -Dsonar.organization=gulcinvarol
 
-    ai-review:
+  ai-review:
     name: "AI Code Review"
     needs: [sonarcloud, codeql]
     runs-on: ubuntu-latest
