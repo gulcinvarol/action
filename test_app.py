@@ -20,4 +20,3 @@ def test_max_risk_limit():
     data = [{"user_id": 2, "amount": 100000}]
     result = calculate_transaction_risk(data)
     assert result == 500.0  # nosec
-    
