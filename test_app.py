@@ -1,6 +1,6 @@
-import pytest
-
 from app import calculate_transaction_risk
+
+import pytest
 
 
 def test_calculate_transaction_risk():
