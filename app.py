@@ -4,11 +4,13 @@ def log_user_action(user_name, action):
 
 
 def calculate_transaction_risk(transactions):
-    """Islem riskini hesaplar (Unit test uyumlulugu icin)."""
+    """Islem riskini hesaplar ve 500 ile sinirlar."""
     if not transactions:
-        return 0
+        return 0.0
     amounts = [t.get("amount", 0) for t in transactions]
-    return sum(amounts) / len(amounts)
+    avg_amount = sum(amounts) / len(amounts)
+    risk = avg_amount * 0.05
+    return min(float(risk), 500.0)
 
 
 def toplama(a, b):
@@ -21,3 +23,4 @@ if __name__ == "__main__":
     print(f"Toplam Risk Skoru: {calculate_transaction_risk(sample_txs)}")
     print(log_user_action("Gülçin", "Login"))
     print(f"Toplama Sonucu: {toplama(5, 3)}")
+    
