@@ -183,7 +183,7 @@ jobs:
           echo "DEBUG RESPONSE:"
           echo "$RESPONSE"
           echo "=========================================="
-          echo "🤖 GEMINI AI CODE REVIEW"
+          echo " GEMINI AI CODE REVIEW"
           echo "=========================================="
           echo "$RESPONSE" | jq -r '.candidates[0].content.parts[0].text // .error // "Review failed"'
           echo "=========================================="
