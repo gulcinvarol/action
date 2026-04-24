@@ -7,7 +7,7 @@ def calculate_transaction_risk(transactions):
     """Islem riskini hesaplar (Unit test uyumlulugu icin)."""
     if not transactions:
         return 0
-    amounts = [t.get('amount', 0) for t in transactions]
+    amounts = [t.get("amount", 0) for t in transactions]
     return sum(amounts) / len(amounts)
 
 
@@ -21,4 +21,3 @@ if __name__ == "__main__":
     print(f"Toplam Risk Skoru: {calculate_transaction_risk(sample_txs)}")
     print(log_user_action("Gülçin", "Login"))
     print(f"Toplama Sonucu: {toplama(5, 3)}")
-    
