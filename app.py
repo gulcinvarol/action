@@ -40,5 +40,7 @@ if __name__ == "__main__":
     print(f"Toplam Risk Skoru: {calculate_transaction_risk(sample_txs)}")
     print(log_user_action("Gülçin", "Login"))
     
+
 def toplama(a, b):
+    """İki sayıyı toplar."""
     return a + b
