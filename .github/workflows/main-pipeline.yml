@@ -9,8 +9,9 @@ on:
 
 permissions:
   contents: read
-  security-events: write 
+  security-events: write
   statuses: write
+  pull-requests: write
 
 jobs:
   # ==========================================
@@ -160,15 +161,19 @@ jobs:
           pip install pylint flake8
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-      - name: Run Pylint Review
-        uses: reviewdog/action-pylint@master
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          pylint_args: '--disable=all --enable=E,F'
-          reporter: github-pr-review
+      - name: Install Reviewdog
+        run: |
+          curl -sfL https://raw.githubusercontent.com/reviewdog/reviewdog/master/install.sh | sh -s -- -b /usr/local/bin
+
+      - name: Run Pylint with Reviewdog
+        run: |
+          pylint --output-format=parseable --disable=all --enable=E,F . 2>&1 | \
+          reviewdog -f=pylint -name="pylint" -reporter=github-pr-review -level=error
+        env:
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run Flake8 Review
-        uses: reviewdog/action-flake8@master
+        uses: reviewdog/action-flake8@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           reporter: github-pr-review
