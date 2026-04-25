@@ -167,16 +167,17 @@ jobs:
 
       - name: Run Pylint with Reviewdog
         run: |
-          pylint --output-format=parseable --disable=all --enable=E,F . 2>&1 || true | \
-          reviewdog -efm="%f:%l: [%t%n(%m" -name="pylint" -reporter=github-pr-review -level=error
+          (pylint --output-format=text . || true) | \
+          reviewdog -name="pylint" -reporter=github-pr-review -level=error
         env:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Run Flake8 Review
+      - name: Run Flake8 with Reviewdog
         uses: reviewdog/action-flake8@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           reporter: github-pr-review
+          level: error
 
 
 
