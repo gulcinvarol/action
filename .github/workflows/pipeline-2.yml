@@ -1,11 +1,10 @@
 ---
-name: "Hibrit Pipeline"
+name: "Pipeline 2 - Derin ve Detaylı Analiz"
 
 on:
-  push:
-    branches: ["main"]
   pull_request:
     branches: ["main"]
+    types: [ready_for_review]
 
 permissions:
   contents: read
@@ -17,67 +16,8 @@ jobs:
   # ==========================================
   # 1.AŞAMA
   # ==========================================
-  gitleaks:
-    name: "Secret Detection"
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - uses: gitleaks/gitleaks-action@v2
-        env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-
-  linter:
-    name: "Kod Standartları ve Kalite(Linting)"
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Super-Linter Slim
-        uses: github/super-linter/slim@v5
-        env:
-          VALIDATE_ALL_CODEBASE: false
-          DEFAULT_BRANCH: main
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-
-  # ==========================================
-  # 2.AŞAMA
-  # ==========================================
-  unit-test:
-    name: "Unit Test"
-    needs: [gitleaks, linter]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install pytest  
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-      - name: Run Tests
-        run: pytest 
-
-  # ==========================================
-  # 3.AŞAMA
-  # ==========================================
-  bandit:
-    name: "Statik Güvenlik Analizi(SAST-Bandit)"
-    needs: [unit-test] 
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Bandit Scan
-        run: pip install bandit && bandit -r .
-
   snyk:
-    name: "Bağımlılık Güvenlik Analizi(SCA - Snyk)"
-    needs: [unit-test]
+    name: "Bağımlılık Güvenlik Analizi (SCA - Snyk)"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -88,29 +28,18 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
       - name: Setup Snyk CLI
-        uses: snyk/actions/setup@master 
+        uses: snyk/actions/setup@master
       - name: Snyk Test
-        run: snyk test --file=requirements.txt 
+        run: snyk test --file=requirements.txt
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
-  trivy:
-    name: "Altyapı ve Zafiyet Taraması(Trivy)"
-    needs: [unit-test]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: aquasecurity/trivy-action@master
-        with:
-          scan-type: 'fs'
-          severity: 'CRITICAL,HIGH'
-
   # ==========================================
-  # 4.AŞAMA
+  # 2.AŞAMA
   # ==========================================
   codeql:
     name: "Derin Kod Güvenlik Analizi (CodeQL)"
-    needs: [bandit, snyk, trivy] 
+    needs: [snyk]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -121,14 +50,17 @@ jobs:
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
 
+  # ==========================================
+  # 3.AŞAMA
+  # ==========================================
   sonarcloud:
-    name: "Kod Kalite Analizi(SonarCloud)"
-    needs: [bandit, snyk, trivy]
+    name: "Kod Kalite Analizi (SonarCloud)"
+    needs: [codeql]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0 
+          fetch-depth: 0
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         env:
@@ -139,11 +71,13 @@ jobs:
             -Dsonar.projectKey=gulcinvarol_action
             -Dsonar.organization=gulcinvarol
 
+  # ==========================================
+  # 4.AŞAMA
+  # ==========================================
   code-review:
     name: "Code Review (Reviewdog)"
-    needs: [sonarcloud, codeql]
+    needs: [sonarcloud]
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -177,8 +111,3 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           reporter: github-pr-review
           level: error
-
-
-
-
-          
