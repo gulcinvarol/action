@@ -1,3 +1,6 @@
+"""Flask uygulamasi - Kullanici hareketleri ve islem riski yonetimi."""
+
+
 def log_user_action(user_name, action):
     """Kullanici hareketlerini loglar."""
     return f"Action {action} for {user_name} saved."
