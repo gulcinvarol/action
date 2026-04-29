@@ -1,0 +1,3 @@
+pipeline-1 her committe hızlı tarama yaparak commitlerin kalite güvenlik açıklıklarına bakıyor.
+pipeline-2 sadece draft PR ready for review olarak seçildiğinde tetiklenecek.
+draft PR açıldı ve şuan yapacağım commitler sadece pipeline-1 i tetiklemeli.
