@@ -166,12 +166,10 @@ jobs:
           curl -sfL https://raw.githubusercontent.com/reviewdog/reviewdog/master/install.sh | sh -s -- -b /usr/local/bin
 
       - name: Run Pylint with Reviewdog
-        uses: reviewdog/action-pylint@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          reporter: github-pr-review
-          level: error
-          fail_on_error: false
+        run: |
+          pylint --output-format=parseable app.py test_app.py | reviewdog -name="pylint" -reporter=github-pr-review -efm='%f:%l:%c: %m' || true
+        env:
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run Flake8 with Reviewdog
         uses: reviewdog/action-flake8@v3
