@@ -12,6 +12,10 @@ permissions:
   statuses: write
   pull-requests: write
 
+concurrency:
+  group: pipeline-2-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
 jobs:
   # ==========================================
   # 1.AŞAMA
